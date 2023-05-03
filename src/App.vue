@@ -3,7 +3,7 @@ import { ref } from "vue";
 
 const showModal = ref(false);
 const newNote = ref("");
-
+const errorMsg = ref("");
 const notes = ref([]);
 
 function getRandomColor() {
@@ -11,6 +11,9 @@ function getRandomColor() {
 }
 
 function addNote() {
+  if (newNote.value.length < 10) {
+    return (errorMsg.value = "Notes need to be 10 characters or more");
+  }
   notes.value.push({
     id: Math.floor(Math.random() * 1000000),
     text: newNote.value,
@@ -19,6 +22,7 @@ function addNote() {
   });
   showModal.value = false;
   newNote.value = "";
+  errorMsg.value = "";
 }
 </script>
 
@@ -27,12 +31,13 @@ function addNote() {
     <div class="overlay" v-if="showModal">
       <div class="modal">
         <textarea
-          v-model="newNote"
+          v-model.trim="newNote"
           name="note"
           id="note"
           cols="30"
           rows="10"
         ></textarea>
+        <p v-if="errorMsg">{{ errorMsg }}</p>
         <button @click="addNote">Add Note</button>
         <button class="close" @click="showModal = false">Close</button> //
       </div>
@@ -43,19 +48,16 @@ function addNote() {
         <button @click="showModal = true">+</button>
       </header>
       <div class="card-container">
-        <div class="card">
+        <div
+          v-for="note in notes"
+          :key="note.id"
+          class="card"
+          :style="{ backgroundColor: note.backgroundColor }"
+        >
           <p class="main-text">
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Sit,
-            maiores. Numquam esse magnam enim sunt?
+            {{ note.text }}
           </p>
-          <p class="date">04-06-2023</p>
-        </div>
-        <div class="card">
-          <p class="main-text">
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Sit,
-            maiores. Numquam esse magnam enim sunt?
-          </p>
-          <p class="date">04-06-2023</p>
+          <p class="date">{{ note.date.toLocaleDateString("en-US") }}</p>
         </div>
       </div>
     </div>
@@ -157,5 +159,9 @@ header button {
 .modal .close {
   background-color: rgb(193, 19, 15);
   margin-top: 7px;
+}
+
+.modal p {
+  color: rgb(193, 19, 15);
 }
 </style>
