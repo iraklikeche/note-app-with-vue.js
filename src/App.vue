@@ -3,8 +3,8 @@ import { ref } from "vue";
 
 const showModal = ref(false);
 const newNote = ref("");
-const errorMsg = ref("");
 const notes = ref([]);
+const errorMsg = ref("");
 
 function getRandomColor() {
   return "hsl(" + Math.random() * 360 + ", 100%, 75%)";
@@ -12,17 +12,19 @@ function getRandomColor() {
 
 function addNote() {
   if (newNote.value.length < 10) {
-    return (errorMsg.value = "Notes need to be 10 characters or more");
+    return (errorMsg.value = "Note needs to be 10 characters or more");
+  } else {
+    notes.value.push({
+      id: Math.floor(Math.random() * 1000000),
+      text: newNote.value,
+      backgroundColor: getRandomColor(),
+      date: new Date(),
+    });
+
+    showModal.value = false;
+    newNote.value = "";
+    errorMsg.value = "";
   }
-  notes.value.push({
-    id: Math.floor(Math.random() * 1000000),
-    text: newNote.value,
-    date: new Date(),
-    backgroundColor: getRandomColor(),
-  });
-  showModal.value = false;
-  newNote.value = "";
-  errorMsg.value = "";
 }
 </script>
 
@@ -31,15 +33,15 @@ function addNote() {
     <div class="overlay" v-if="showModal">
       <div class="modal">
         <textarea
-          v-model.trim="newNote"
           name="note"
           id="note"
           cols="30"
           rows="10"
+          v-model.trim="newNote"
         ></textarea>
         <p v-if="errorMsg">{{ errorMsg }}</p>
         <button @click="addNote">Add Note</button>
-        <button class="close" @click="showModal = false">Close</button> //
+        <button class="close" @click="showModal = false">Close</button>
       </div>
     </div>
     <div class="container">
@@ -49,14 +51,12 @@ function addNote() {
       </header>
       <div class="card-container">
         <div
+          class="card"
           v-for="note in notes"
           :key="note.id"
-          class="card"
           :style="{ backgroundColor: note.backgroundColor }"
         >
-          <p class="main-text">
-            {{ note.text }}
-          </p>
+          <p class="main-text">{{ note.text }}</p>
           <p class="date">{{ note.date.toLocaleDateString("en-US") }}</p>
         </div>
       </div>
